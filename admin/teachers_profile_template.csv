@@ -1,0 +1,13 @@
+﻿,SCHOOL:,SINAPANGAN ES,,,,,,,,,
+,SCHOOL ID:,318701,,,,,,,,,
+,NUMBER OF TEACHERS:,8,,,,,,,,,
+,TEACHERS' PROFILE,,,,,,,,,,
+,TEACHERS,SEX,YEARS OF TEACHING EXPERIENCE,POSITION,GRADE LEVEL TAUGHT,MAJOR/ SPECIALIZATION,EDUCATION,NO. OF TRAININGS,EMAIL ADDRESS,,NOTE: Default password will be the school ID
+1,Teacher1,Male,3,Teacher I,Kinder,General,Bachelor,1,teach1@gmail.com,,
+2,Teacher2,Female,3,Teacher II,Grade 1,General,Bachelor,1,teach2@gmail.com,,
+3,Teacher3,Female,4,Teacher III,Grade 2,General,Master,3,teach3@gmail.com,,
+4,Teacher4,Female,10,Teacher III,Grade 3,General,Master,3,teach4@gmail.com,,
+5,Teacher5,Female,18,Teacher III,Grade 4,General,Bachelor,5,teach5@gmail.com,,
+6,Teacher6,Female,20,MT I,Grade 6,General,Doctor,5,teach6@gmail.com,,
+7,Teacher7,Female,15,Teacher III,Grade 5,General,Master,4,teach7@gmail.com,,
+8,Teacher8,Female,9,Teacher III,Grade 3,General,Bachelor,3,teach8@gmail.com,,

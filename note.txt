@@ -1,0 +1,2 @@
+teacher can view only data from its school id and view only grade_level base on grade level handling of the teacher
+else if all levels are indicated to its grade_level column it can view all.

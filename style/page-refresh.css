@@ -1,0 +1,752 @@
+:root {
+    --abra-ink: #142738;
+    --abra-ink-soft: #213a4e;
+    --abra-paper: #f6f7f4;
+    --abra-text: #263a4a;
+    --abra-muted: #70808c;
+    --abra-line: #e4e8e5;
+    --abra-teal: #4d9995;
+    --abra-green: #4f9a48;
+    --abra-gold: #d1a94c;
+}
+
+.admin-login-page {
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 82% 18%, rgba(77, 153, 149, 0.2), transparent 34%),
+        radial-gradient(ellipse at 8% 92%, rgba(79, 154, 72, 0.16), transparent 34%),
+        linear-gradient(135deg, #122538, #18394e 58%, #1d4858);
+    color: var(--abra-text);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: clamp(1rem, 4vw, 3rem);
+}
+
+.admin-login-page .admin-login-shell {
+    margin: auto;
+    max-width: 1050px;
+    width: 100%;
+}
+
+.admin-login-page .admin-login-back {
+    color: rgba(255, 255, 255, 0.82);
+    display: inline-flex;
+    font-size: 0.9rem;
+    font-weight: 600;
+    gap: 0.55rem;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+    transition: color 180ms ease, transform 180ms ease;
+}
+
+.admin-login-page .admin-login-back:hover {
+    color: #fff;
+    transform: translateX(-3px);
+}
+
+.admin-login-page .admin-login-layout {
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    border-radius: 1.5rem;
+    box-shadow: 0 30px 90px rgba(5, 18, 29, 0.35);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.82fr);
+    overflow: hidden;
+}
+
+.admin-login-page .admin-login-intro {
+    background:
+        radial-gradient(circle at 100% 0, rgba(77, 153, 149, 0.22), transparent 42%),
+        linear-gradient(145deg, #f4f7f3, #e9f0ec);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 510px;
+    padding: clamp(2rem, 5vw, 4rem);
+}
+
+.admin-login-page .admin-login-brand {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+}
+
+.admin-login-page .admin-login-brand img {
+    background: #fff;
+    border: 1px solid var(--abra-line);
+    border-radius: 1rem;
+    height: 60px;
+    object-fit: contain;
+    padding: 0.45rem;
+    width: 60px;
+}
+
+.admin-login-page .admin-login-brand span {
+    color: var(--abra-ink);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    max-width: 210px;
+}
+
+.admin-login-page .admin-login-intro h1 {
+    color: var(--abra-ink);
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    margin: 0 0 1rem;
+}
+
+.admin-login-page .admin-login-intro h1 span {
+    color: var(--abra-teal);
+}
+
+.admin-login-page .admin-login-intro p {
+    color: var(--abra-muted);
+    line-height: 1.75;
+    margin: 0;
+    max-width: 410px;
+}
+
+.admin-login-page .admin-login-mark {
+    align-items: center;
+    color: var(--abra-ink-soft);
+    display: flex;
+    font-size: 0.8rem;
+    font-weight: 700;
+    gap: 0.65rem;
+    letter-spacing: 0.04em;
+}
+
+.admin-login-page .admin-login-mark i {
+    color: var(--abra-green);
+}
+
+.admin-login-page .admin-login-form-wrap {
+    align-self: center;
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+    width: 100%;
+}
+
+.admin-login-page .admin-login-form-wrap h2 {
+    color: var(--abra-ink);
+    font-size: 1.7rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.35rem;
+}
+
+.admin-login-page .admin-login-form-wrap > p {
+    color: var(--abra-muted);
+    font-size: 0.94rem;
+    margin-bottom: 1.8rem;
+}
+
+.admin-login-page .admin-login-form-wrap .input-group {
+    margin-bottom: 1rem;
+}
+
+.admin-login-page .admin-login-form-wrap .input-group-text {
+    background: #f6f8f6;
+    border-color: #dce4df;
+    color: var(--abra-teal);
+    min-width: 46px;
+}
+
+.admin-login-page .admin-login-form-wrap .form-control {
+    border-color: #dce4df;
+    min-height: 48px;
+}
+
+.admin-login-page .admin-login-form-wrap .form-control:focus {
+    border-color: var(--abra-teal);
+    box-shadow: 0 0 0 0.2rem rgba(77, 153, 149, 0.16);
+}
+
+.admin-login-page .admin-login-submit {
+    background: var(--abra-ink);
+    border: 0;
+    border-radius: 0.7rem;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 0.6rem;
+    min-height: 48px;
+    transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.admin-login-page .admin-login-submit:hover {
+    background: #234662;
+    box-shadow: 0 10px 22px rgba(20, 39, 56, 0.2);
+    transform: translateY(-2px);
+}
+
+.admin-login-page .admin-login-error {
+    background: #fff2ef;
+    border: 1px solid #f1d1c9;
+    border-radius: 0.65rem;
+    color: #9c3d35;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0.85rem;
+}
+
+.admin-login-page .admin-login-public-link {
+    color: var(--abra-teal);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.contact-page,
+.faq-page,
+.analytics-page {
+    background: var(--abra-paper);
+    color: var(--abra-text);
+}
+
+body.about-page,
+body.contact-page,
+body.faq-page,
+body.analytics-page {
+    font-family: "Source Sans Pro", "Segoe UI", sans-serif;
+    overflow-x: clip;
+}
+
+.about-page .header-container,
+.contact-page .header-container,
+.faq-page .header-container,
+.analytics-page .header-container {
+    background: rgba(255, 255, 255, 0.97) !important;
+    border-bottom: 1px solid rgba(20, 39, 56, 0.08);
+    padding: 0.55rem clamp(0.75rem, 3vw, 2.5rem) !important;
+    position: relative;
+    z-index: 1030;
+}
+
+.contact-page .header-container .row,
+.faq-page .header-container .row,
+.analytics-page .header-container .row {
+    margin: 0 auto;
+    max-width: 1440px;
+    min-height: 72px;
+}
+
+.about-page .logo-col,
+.contact-page .logo-col,
+.faq-page .logo-col,
+.analytics-page .logo-col {
+    justify-content: flex-start;
+}
+
+.about-page .title-col,
+.contact-page .title-col,
+.faq-page .title-col,
+.analytics-page .title-col {
+    justify-content: flex-start;
+}
+
+.about-page .user-col,
+.contact-page .user-col,
+.faq-page .user-col,
+.analytics-page .user-col {
+    justify-content: flex-end;
+}
+
+.about-page .mobile-stack,
+.contact-page .mobile-stack,
+.faq-page .mobile-stack,
+.analytics-page .mobile-stack {
+    flex-wrap: nowrap;
+}
+
+.about-page .brand-logo,
+.contact-page .brand-logo,
+.faq-page .brand-logo,
+.analytics-page .brand-logo {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    height: 54px !important;
+    max-height: 54px !important;
+    max-width: 54px !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    object-fit: contain;
+    width: 54px !important;
+}
+
+.about-page .header-title,
+.contact-page .header-title,
+.faq-page .header-title,
+.analytics-page .header-title {
+    color: var(--abra-ink) !important;
+    font-size: clamp(0.78rem, 1.2vw, 1rem) !important;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+}
+
+.about-page .login-btn,
+.contact-page .login-btn,
+.faq-page .login-btn,
+.analytics-page .login-btn {
+    background: var(--abra-ink) !important;
+    border: 1px solid var(--abra-ink) !important;
+    border-radius: 0.65rem !important;
+    box-shadow: 0 5px 16px rgba(20, 39, 56, 0.13);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.7rem 1.1rem !important;
+    transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.about-page .login-btn:hover,
+.contact-page .login-btn:hover,
+.faq-page .login-btn:hover,
+.analytics-page .login-btn:hover {
+    background: #234662 !important;
+    box-shadow: 0 8px 20px rgba(20, 39, 56, 0.18);
+    transform: translateY(-2px);
+}
+
+.public-site-nav {
+    background: rgba(20, 39, 56, 0.97);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 8px 24px rgba(9, 24, 36, 0.12);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.public-site-nav-inner {
+    align-items: center;
+    display: flex;
+    gap: 0.3rem;
+    justify-content: flex-end;
+    margin: 0 auto;
+    max-width: 1440px;
+    min-height: 60px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 0.45rem clamp(0.75rem, 3vw, 2.5rem);
+    scrollbar-width: none;
+}
+
+.public-site-nav-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.public-site-nav a {
+    border: 1px solid transparent;
+    border-radius: 0.55rem;
+    color: rgba(245, 248, 248, 0.76);
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    font-weight: 650;
+    padding: 0.62rem 0.85rem;
+    text-decoration: none;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.public-site-nav a:hover,
+.public-site-nav a[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.public-site-nav a[aria-current="page"]::after {
+    background: #92c8a1;
+    border-radius: 99px;
+    content: "";
+    display: block;
+    height: 2px;
+    margin: 0.35rem auto -0.37rem;
+    width: 1.4rem;
+}
+
+.public-site-nav a.public-site-nav-workspace {
+    background: rgba(166, 210, 176, 0.14);
+    color: #c4e4ce;
+    margin-left: 0.3rem;
+}
+
+.public-page-hero {
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 82% 43%, rgba(65, 110, 135, 0.28), transparent 35%),
+        radial-gradient(ellipse at 6% 4%, rgba(79, 154, 72, 0.1), transparent 30%),
+        linear-gradient(125deg, #122538 0%, #18354b 62%, #1e4557 100%) !important;
+    color: #fff;
+    display: flex;
+    isolation: isolate;
+    min-height: clamp(230px, 30vh, 330px);
+    overflow: hidden;
+    padding: 2.5rem clamp(1.25rem, 6.5vw, 7rem);
+    position: relative;
+}
+
+.public-page-hero-inner {
+    margin: 0 auto;
+    max-width: 1320px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+.public-page-hero .text-box {
+    color: #fff;
+    left: auto;
+    margin: 0 auto;
+    max-width: 1320px;
+    position: relative;
+    text-align: left;
+    top: auto;
+    transform: none;
+    width: 100%;
+}
+
+.public-page-hero .text-box h1,
+.public-page-hero h1 {
+    color: #fff;
+    font-size: clamp(2.2rem, 5vw, 3.7rem);
+    font-weight: 750;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+    margin: 0;
+    text-shadow: none;
+}
+
+.public-page-hero p {
+    color: rgba(235, 242, 245, 0.75);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin: 0.9rem 0 0;
+    max-width: 650px;
+}
+
+.about-page .about-section-kicker,
+.contact-page .public-page-hero .about-section-kicker,
+.faq-page .public-page-hero .about-section-kicker,
+.analytics-page .public-page-hero .about-section-kicker {
+    color: #92c8bd;
+    display: inline-flex;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.analytics-page .analytics-intro {
+    min-height: 220px;
+}
+
+.analytics-page .header1 {
+    background: var(--abra-paper);
+    min-height: auto;
+    padding: 1.75rem clamp(0.75rem, 3vw, 2rem);
+}
+
+.contact-page .header4,
+.faq-page .header4 {
+    background-image:
+        radial-gradient(ellipse at 82% 43%, rgba(65, 110, 135, 0.28), transparent 35%),
+        radial-gradient(ellipse at 6% 4%, rgba(79, 154, 72, 0.1), transparent 30%),
+        linear-gradient(125deg, #122538 0%, #18354b 62%, #1e4557 100%) !important;
+    min-height: clamp(230px, 30vh, 330px);
+}
+
+.contact-page .header4 .text-box,
+.faq-page .header4 .text-box {
+    margin: 0 auto;
+    max-width: 1180px;
+    padding: 2rem clamp(1.25rem, 5vw, 4rem);
+    position: relative;
+    width: 100%;
+}
+
+.contact-page .header4 .text-box h1,
+.faq-page .header4 .text-box h1 {
+    color: #fff;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin: 0;
+    text-shadow: 0 3px 24px rgba(0, 0, 0, 0.24);
+}
+
+.contact-page .container.pt-5,
+.faq-page .container.pt-5 {
+    margin-bottom: 4rem;
+    max-width: 1180px;
+}
+
+.contact-page .container.pt-5 > .row > div:first-child,
+.contact-page .container.pt-5 > .row > div:last-child {
+    background: #fff;
+    border: 1px solid var(--abra-line);
+    border-radius: 1.15rem;
+    box-shadow: 0 14px 40px rgba(20, 39, 56, 0.06);
+    margin-bottom: 1.25rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.contact-page .container.pt-5 h1 {
+    color: var(--abra-ink);
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.contact-page .container.pt-5 .form-control {
+    border-color: #dce4df;
+    border-radius: 0.65rem;
+    min-height: 46px;
+}
+
+.contact-page .container.pt-5 textarea.form-control {
+    min-height: 180px;
+}
+
+.contact-page .container.pt-5 .form-control:focus {
+    border-color: var(--abra-teal);
+    box-shadow: 0 0 0 0.2rem rgba(77, 153, 149, 0.16);
+}
+
+.contact-page .container.pt-5 button[type="submit"] {
+    background: var(--abra-ink) !important;
+    border: 0;
+    border-radius: 0.65rem;
+    min-height: 48px;
+    transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.contact-page .container.pt-5 button[type="submit"]:hover {
+    background: #234662 !important;
+    transform: translateY(-2px);
+}
+
+.contact-page .contact-col div,
+.contact-page .container.pt-5 .row .row > div {
+    min-width: 0;
+}
+
+.contact-page .contact-col h5,
+.contact-page .container.pt-5 h5 {
+    color: var(--abra-ink);
+    overflow-wrap: anywhere;
+}
+
+.contact-page .map-responsive {
+    border-radius: 0.9rem;
+}
+
+.faq-page .faq {
+    background: #fff;
+    border: 1px solid var(--abra-line);
+    border-radius: 0.9rem;
+    box-shadow: 0 10px 28px rgba(20, 39, 56, 0.05);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 180ms ease, transform 180ms ease;
+}
+
+.faq-page .faq:hover {
+    box-shadow: 0 16px 36px rgba(20, 39, 56, 0.09);
+    transform: translateY(-2px);
+}
+
+.faq-page .question {
+    align-items: center;
+    background: #fff;
+    border: 0;
+    border-left: 4px solid var(--abra-teal);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--abra-ink);
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.5;
+    padding: 1rem 1.1rem;
+}
+
+.faq-page .question[style] {
+    background-image: none !important;
+    color: var(--abra-ink) !important;
+}
+
+.faq-page .answer {
+    border-top: 1px solid var(--abra-line);
+    color: var(--abra-muted);
+    line-height: 1.75;
+    padding: 1rem 1.1rem 1.2rem;
+}
+
+.analytics-page .header1 {
+    background:
+        radial-gradient(ellipse at 82% 8%, rgba(77, 153, 149, 0.12), transparent 33%),
+        linear-gradient(180deg, #f7f8f5, #f1f4f1);
+}
+
+.analytics-page .data-card {
+    background: #fff !important;
+    border: 1px solid var(--abra-line);
+    border-radius: 1rem;
+    box-shadow: 0 14px 36px rgba(20, 39, 56, 0.07);
+    min-height: 0;
+    padding: clamp(1.35rem, 3vw, 2rem) !important;
+    text-align: left;
+    transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.analytics-page .data-card:hover {
+    background: #fff !important;
+    box-shadow: 0 22px 44px rgba(20, 39, 56, 0.12);
+    transform: translateY(-4px);
+}
+
+.analytics-page .data-card h3 {
+    border-bottom-color: var(--abra-teal);
+    color: var(--abra-ink) !important;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.analytics-page .data-card h4,
+.analytics-page .data-card h5 {
+    color: var(--abra-muted) !important;
+}
+
+.analytics-page .data-card p {
+    color: var(--abra-muted);
+}
+
+.analytics-page .card {
+    background: #fff;
+    border: 1px solid var(--abra-line);
+    border-radius: 0.9rem;
+    box-shadow: 0 12px 32px rgba(20, 39, 56, 0.06);
+    overflow: hidden;
+}
+
+.analytics-page .card-header {
+    background: #f7f9f7;
+    border-bottom: 1px solid var(--abra-line);
+}
+
+.analytics-page .card-title {
+    color: var(--abra-ink);
+    font-weight: 700;
+}
+
+.analytics-page canvas {
+    max-width: 100%;
+}
+
+.contact-page .footer,
+.faq-page .footer,
+.analytics-page .footer {
+    background: var(--abra-ink);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.contact-page .footer a,
+.faq-page .footer a,
+.analytics-page .footer a {
+    color: #b8d6ca;
+}
+
+@media (max-width: 767.98px) {
+    .contact-page .header-container,
+    .faq-page .header-container,
+    .analytics-page .header-container {
+        padding: 0.45rem 0.6rem !important;
+    }
+
+    .contact-page .header-container .row,
+    .faq-page .header-container .row,
+    .analytics-page .header-container .row {
+        min-height: 58px;
+    }
+
+.about-page .brand-logo,
+    .contact-page .brand-logo,
+    .faq-page .brand-logo,
+    .analytics-page .brand-logo {
+        height: 42px !important;
+        max-height: 42px !important;
+        max-width: 42px !important;
+        width: 42px !important;
+    }
+
+.about-page .header-title,
+    .contact-page .header-title,
+    .faq-page .header-title,
+    .analytics-page .header-title {
+        font-size: 0.68rem !important;
+        letter-spacing: 0.015em;
+    }
+
+.about-page .user-col,
+    .contact-page .user-col,
+    .faq-page .user-col,
+    .analytics-page .user-col {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .public-site-nav-inner {
+        justify-content: flex-start;
+        min-height: 54px;
+        padding: 0.4rem 0.55rem;
+    }
+
+    .public-site-nav a {
+        font-size: 0.75rem;
+        padding: 0.58rem 0.65rem;
+    }
+
+    .public-page-hero {
+        min-height: 220px;
+        padding: 2rem 1.1rem;
+    }
+
+    .analytics-page .analytics-intro {
+        min-height: 190px;
+    }
+
+    .admin-login-page .admin-login-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-login-page .admin-login-intro {
+        min-height: 270px;
+        padding: 1.5rem;
+    }
+
+    .admin-login-page .admin-login-mark {
+        margin-top: 2rem;
+    }
+
+    .admin-login-page .admin-login-form-wrap {
+        padding: 1.5rem;
+    }
+
+    .contact-page .header4,
+    .faq-page .header4 {
+        min-height: 230px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-login-page *,
+    .contact-page *,
+    .faq-page *,
+    .analytics-page * {
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
