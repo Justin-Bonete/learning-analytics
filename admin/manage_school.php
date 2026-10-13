@@ -154,10 +154,7 @@ if (isset($_POST["submitgb"])) {
         fgetcsv($handle);
         
         // Database connection
-        $conn = new mysqli("localhost", "u186176140_navarro", "NavarroTester123!", "u186176140_navarro");
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+        $conn = $DB;
         
         $rowCount = 0; // Initialize counter
 
@@ -184,7 +181,6 @@ if (isset($_POST["submitgb"])) {
         }
         
         fclose($handle);
-        $conn->close();
         echo "Inserted first 318 rows successfully.";
     } else {
         echo "Error uploading file.";
