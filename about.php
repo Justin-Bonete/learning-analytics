@@ -28,15 +28,16 @@ if (mysqli_num_rows($systemconfig) > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style/myStyle.css">
-    <link rel="stylesheet" href="style/page-refresh.css">
+    <link rel="stylesheet" href="style/page-refresh.css?v=2">
     <link rel="stylesheet" href="style/about-page.css">
-    <link rel="stylesheet" href="style/app-polish.css?v=5">
+    <link rel="stylesheet" href="style/app-polish.css?v=6">
     <link rel="icon" type="image/jpg" href="images/<?php echo rawurlencode(basename($SYS_logo)); ?>">
 </head>
 
 <?php include 'includes/modals.php'; ?>
 
 <body class="about-page">
+    <?php include 'includes/page-loader.php'; ?>
     <?php include('includes/navbarTop.php'); ?>
     <?php include('includes/public-navigation.php'); ?>
 

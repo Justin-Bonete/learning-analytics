@@ -750,3 +750,80 @@ body.analytics-page {
         transition-duration: 0.01ms !important;
     }
 }
+
+.page-loader {
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 50% 45%, rgba(77, 153, 149, 0.16), transparent 38%),
+        linear-gradient(145deg, #102334, #17384a 58%, #102b3b);
+    display: none;
+    inset: 0;
+    justify-items: center;
+    opacity: 1;
+    position: fixed;
+    transition: opacity 560ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+    visibility: visible;
+    z-index: 11000;
+}
+
+.has-page-loader .page-loader {
+    display: grid;
+}
+
+.page-loader-mark {
+    align-items: center;
+    display: grid;
+    height: 144px;
+    justify-items: center;
+    position: relative;
+    width: 144px;
+}
+
+.page-loader-ring {
+    animation: page-loader-spin 1.4s linear infinite;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-left-color: var(--abra-teal);
+    border-radius: 50%;
+    border-top-color: var(--abra-gold);
+    height: 100%;
+    position: absolute;
+    width: 100%;
+}
+
+.page-loader-mark img {
+    background: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.76);
+    border-radius: 1.25rem;
+    box-shadow: 0 12px 40px rgba(4, 18, 29, 0.3);
+    height: 88px;
+    object-fit: contain;
+    padding: 0.7rem;
+    width: 88px;
+}
+
+.page-loader--leaving {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s, 560ms;
+    visibility: hidden;
+}
+
+@keyframes page-loader-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-loader {
+        transition-duration: 0.01ms;
+    }
+
+    .page-loader--leaving {
+        transition-delay: 0s;
+    }
+
+    .page-loader-ring {
+        animation: none;
+    }
+}

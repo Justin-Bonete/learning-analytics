@@ -1,9 +1,9 @@
 <!-- /.content-wrapper -->
 <footer class="main-footer">
-    <strong>Copyright &copy; 2024 DEPED ABRA.</strong>
+    <strong>&copy; <?php echo date('Y'); ?> DEPED ABRA.</strong>
 
     <div class="float-right d-none d-sm-inline-block">
-        All rights reserved.
+        Learning Analytics Platform
     </div>
 </footer>
 

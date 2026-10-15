@@ -39,8 +39,8 @@ if (mysqli_num_rows($systemconfig) > 0)
     <!-- Icon Font Stylesheet -->
     <link href="style/fontawesome/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style/myStyle.css">
-    <link rel="stylesheet" href="style/page-refresh.css">
-    <link rel="stylesheet" href="style/app-polish.css?v=5">
+    <link rel="stylesheet" href="style/page-refresh.css?v=2">
+    <link rel="stylesheet" href="style/app-polish.css?v=6">
     <link rel="icon" type="image/jpg" href="images/<?php echo $SYS_logo; ?>">
 
     <style>
@@ -194,6 +194,7 @@ if(isset($_POST['sendconcern'])){
 ?>
 
 <body class="contact-page">
+    <?php include 'includes/page-loader.php'; ?>
     <?php
     include('includes/navbarTop.php');
     include('includes/public-navigation.php');

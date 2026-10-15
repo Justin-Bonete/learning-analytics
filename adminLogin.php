@@ -83,11 +83,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="style/myStyle.css">
-    <link rel="stylesheet" href="style/page-refresh.css">
-    <link rel="stylesheet" href="style/app-polish.css?v=5">
+    <link rel="stylesheet" href="style/page-refresh.css?v=2">
+    <link rel="stylesheet" href="style/app-polish.css?v=6">
     <link rel="icon" type="image/jpg" href="images/<?php echo rawurlencode(basename($SYS_logo ?? 'abra-gov-seal.png')); ?>">
 </head>
 <body class="admin-login-page">
+    <?php include 'includes/page-loader.php'; ?>
     <main class="admin-login-shell">
         <a class="admin-login-back" href="index.php"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to the public site</a>
         <div class="admin-login-layout">

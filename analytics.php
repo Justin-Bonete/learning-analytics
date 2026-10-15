@@ -34,13 +34,14 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 		<link rel="icon" type="image/jpg" href="images/<?php echo $SYS_logo; ?>">
 		<link rel="stylesheet" href="style/myStyle.css">
-		<link rel="stylesheet" href="style/page-refresh.css">
-		<link rel="stylesheet" href="style/app-polish.css?v=5">
+		<link rel="stylesheet" href="style/page-refresh.css?v=2">
+		<link rel="stylesheet" href="style/app-polish.css?v=6">
 	</head>
 	<?php
 		include 'includes/modals.php';
 		?>
 	<body class="analytics-page">
+		<?php include 'includes/page-loader.php'; ?>
 		<?php
 			include('includes/navbarTop.php');
 			include('includes/public-navigation.php');

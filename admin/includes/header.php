@@ -94,10 +94,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
 
 
-    <link rel="stylesheet" href="../style/role-dashboard.css?v=4">
-    <link rel="stylesheet" href="../style/app-polish.css?v=6">
+    <link rel="stylesheet" href="../style/role-dashboard.css?v=5">
+    <link rel="stylesheet" href="../style/app-polish.css?v=8">
 
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed<?php echo basename($_SERVER['PHP_SELF']) === 'dashboard.php' ? ' dashboard-page' : ''; ?>">
+<body class="app-shell hold-transition sidebar-mini layout-fixed layout-footer-fixed<?php echo basename($_SERVER['PHP_SELF']) === 'dashboard.php' ? ' dashboard-page' : ''; ?>">
     <div class="wrapper">
