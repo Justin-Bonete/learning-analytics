@@ -753,8 +753,7 @@ if ($result) {
                                     padding: 3vh; 
                                     height: 200px !important; 
                                     width: 200px !important;
-                                    ">
-<p>testing testing for parktech project</p>                        
+                                    ">                      
                     </canvas>
                 </div>
             </div>
