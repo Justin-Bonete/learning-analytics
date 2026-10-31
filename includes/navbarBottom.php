@@ -16,7 +16,7 @@
         }
     </style>
     
-<div class="container-fluidmobile container-fluid position-relative p-0">
+<div class="container-fluidmobile containeFr-fluid position-relative p-0">
     <nav class="navbar sticky navbar-expand-lg navbar-dark px-3 py-3 py-lg-0 ">
         <a href="index.php" class="navbar-brand p-0">
 

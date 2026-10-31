@@ -1,6 +1,8 @@
 <?php
     require_once('../includes/database_connection.php'); 
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     if (isset($_SESSION['logged']) && $_SESSION['logged'] == 'True') {
     // User is logged in, continue with the rest of the code
     } else {

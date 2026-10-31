@@ -227,9 +227,9 @@
                                 $current_year = date("Y");
                                 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : $current_year;
 
-                                for ($y = $current_year; $y >= 2000; $y--) { // Adjust 2000 to your earliest data year
+                                for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) { // Adjust 2000 to your earliest data year
                                     $selected = ($selected_year == $y) ? 'selected' : '';
-                                    echo "<option value='$y' $selected>$y</option>";
+                                    echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
                                 }
                                 ?>
                             </select>
@@ -554,7 +554,7 @@
                         <?php
                         while ($row = mysqli_fetch_assoc($query)) {
                             echo "<tr>
-                                <td>{$row['year']}</td>
+                                <td>" . htmlspecialchars(formatReportingYear($row['year']), ENT_QUOTES, 'UTF-8') . "</td>
                                 <td>{$row['grade_level']}</td>
                                 <td>{$row['quarter']}</td>
                                 <td>{$row['avg_a']}%<br><small><b>" . getProficiencyLevel($row['avg_a']) . "</b></small></td>

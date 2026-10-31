@@ -208,9 +208,9 @@
                 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : '';
 
                 echo "<option value=''>All Years</option>";
-                for ($y = $current_year; $y >= 2000; $y--) { 
+                for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
                     $selected = ($selected_year == $y) ? 'selected' : '';
-                    echo "<option value='$y' $selected>$y</option>";
+                    echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
                 }
                 ?>
             </select>
@@ -385,7 +385,7 @@ $whereClauses[] = "school_id = " . intval($school_id);
                         <td><?php echo $school_name_row['school_name']; ?>
                         <td><?php echo $row['student_name']; ?></td>
                         <td><?php echo $row['quarter']; ?></td>
-                    <td><?php echo $row['year']; ?></td> <!-- Display Year -->
+                    <td><?php echo htmlspecialchars(formatReportingYear($row['year']), ENT_QUOTES, 'UTF-8'); ?></td> <!-- Display Year -->
                         <td><?php echo $row['a'] . ' / 100' ; ?></td>
                         <td><?php echo $row['b'] . ' / 100' ; ?></td>
                         <td><?php echo $row['c'] . ' / 100' ; ?></td>

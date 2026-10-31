@@ -21,7 +21,7 @@ if (mysqli_num_rows($systemconfig) > 0)
     }
 }
 
-        header('Location: about.php');
+        header('Location: home.php');
         exit();
      
 

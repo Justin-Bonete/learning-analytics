@@ -22,7 +22,7 @@
             </div>
             <div class="info">
                 <a href="#" data-toggle="modal" data-target="#editAdminProfile" class="d-block"><?php echo $_SESSION['fullname']; ?></a>
-                <small class="text-light d-block">Administrator</small>
+                <small class="text-light d-block"><?php echo (int) ($_SESSION['is_superadmin'] ?? 0) === 1 ? 'Administrator' : 'Supervisor'; ?></small>
             </div>
         </div>
         <?php } ?>
@@ -41,6 +41,13 @@
                         <p>
                             Dashboard
                         </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="manage_roles.php" class="nav-link <?php if (basename(htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, "utf-8")) == 'manage_roles.php')
+                        echo 'active'; ?>">
+                        <i class="nav-icon fas fa-user-shield"></i>
+                        <p>Account Roles</p>
                     </a>
                 </li>
 
@@ -82,7 +89,7 @@
                         echo 'active'; ?>">
                         <i class="nav-icon fas fa-building"></i>
                         <p>
-                            School List
+                            Schools List
                         </p>
                     </a>
                 </li>
@@ -125,13 +132,6 @@
                     </a>
                 </li>
                 
-
-
-
-
-
-
-
                 <li class="nav-header">MANAGE LEARNERS SCORES</li>
                 <li class="nav-item">
                     <a href="manage_scores.php" class="nav-link <?php if (basename(htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, "utf-8")) == 'manage_scores.php')

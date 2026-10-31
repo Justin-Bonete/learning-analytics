@@ -1,9 +1,27 @@
 <?php
+if (!isset($DB)) {
+    require_once __DIR__ . '/../includes/database_connection.php';
+}
+
 include('includes/header.php');
 
 
-    $school_id = $_SESSION['school_id'];
-    $school_email = $_SESSION['email'];
+    $school_id = $_SESSION['school_id'] ?? '';
+    $school_email = $_SESSION['email'] ?? '';
+$teacherListUrl = 'manage_teacher.php';
+    $teacherFilterKeys = ['district', 'school_id', 'grade_level', 'position', 'major'];
+    $teacherFilterValues = [];
+    foreach ($teacherFilterKeys as $filterKey) {
+        $teacherFilterValues[$filterKey] = isset($_GET[$filterKey]) && is_string($_GET[$filterKey])
+            ? trim($_GET[$filterKey])
+            : '';
+    }
+    $activeTeacherFilters = array_filter($teacherFilterValues, function ($value) {
+        return $value !== '';
+    });
+    if ($activeTeacherFilters) {
+        $teacherListUrl .= '?' . http_build_query($activeTeacherFilters);
+}
     
     
     // Add this near your other form actions
@@ -106,6 +124,8 @@ if (isset($_POST['addTeacher'])) {
 }
 
      function showSweetAlertSucced2($title, $message, $type) {
+            global $teacherListUrl;
+            $redirectUrl = json_encode($teacherListUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
             echo "
             <script>
             setTimeout(function() {
@@ -115,12 +135,14 @@ if (isset($_POST['addTeacher'])) {
                     icon: '$type',
                     confirmButtonText: 'OK'
                 }).then(function() {
-                  window.location.href = 'manage_teacher.php';
+                  window.location.href = $redirectUrl;
                 });
             }, 500); // Delay in milliseconds (e.g., 1000ms = 1 second)
             </script>";
     }
     function showSweetAlertFailed2($title, $message, $type) {
+                global $teacherListUrl;
+                $redirectUrl = json_encode($teacherListUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
                 echo "
                 <script>
                 setTimeout(function() {
@@ -130,7 +152,7 @@ if (isset($_POST['addTeacher'])) {
                         icon: '$type',
                         confirmButtonText: 'OK'
                     }).then(function() {
-                      window.location.href = 'manage_teacher.php';
+                      window.location.href = $redirectUrl;
                     });
                 }, 500); // Delay in milliseconds (e.g., 1000ms = 1 second)
                 </script>";
@@ -140,6 +162,105 @@ if (isset($_POST['addTeacher'])) {
 include('includes/topbar.php');
 include('includes/sidebar.php');
 include('includes/modals.php');
+
+$districtMunicipalities = [
+    'District 1' => [
+        'Bangued',
+    ],
+    'District 2' => [
+        'Bucay', 'Manabo',
+    ],
+    'District 3' => [
+        'Dolores', 'Tayum',
+    ],
+    'District 4' => [
+        'Lagangilang', 'Lacub', 'Licuan-Baay', 'Malibcong',
+    ],
+    'District 5' => [
+        'La Paz', 'Lagayan', 'Danglas',
+    ],
+];
+$districtOptions = array_combine(array_keys($districtMunicipalities), array_keys($districtMunicipalities));
+$selectedDistrict = isset($districtMunicipalities[$teacherFilterValues['district']])
+    ? $teacherFilterValues['district']
+    : '';
+$schoolOptionsQuery = mysqli_query($DB, "SELECT school_id, school_name, district FROM schools WHERE school_id IS NOT NULL AND school_id <> '' ORDER BY school_name ASC");
+$schoolOptions = [];
+while ($school = mysqli_fetch_assoc($schoolOptionsQuery)) {
+    if ($selectedDistrict === '' || in_array((string)$school['district'], $districtMunicipalities[$selectedDistrict], true)) {
+        $schoolOptions[(string)$school['school_id']] = $school;
+    }
+}
+
+$selectedSchoolId = $teacherFilterValues['school_id'];
+$selectedGradeLevel = $teacherFilterValues['grade_level'];
+$selectedPosition = $teacherFilterValues['position'];
+$selectedMajor = $teacherFilterValues['major'];
+$showTeacherList = !empty($activeTeacherFilters);
+
+$selectedSchoolId = isset($schoolOptions[$selectedSchoolId]) ? $selectedSchoolId : '';
+
+function getTeacherFilterOptions($DB, $filterColumn, $filters, $districtMunicipalities) {
+    $filterColumns = [
+        'school_id' => 't.school_id',
+        'grade_level' => 't.grade_level',
+        'position' => 't.position',
+    ];
+    $conditions = ["t.`$filterColumn` IS NOT NULL", "t.`$filterColumn` <> ''"];
+    foreach ($filters as $filterKey => $filterValue) {
+        if ($filterValue !== '' && $filterKey === 'district') {
+            $municipalities = $districtMunicipalities[$filterValue] ?? [];
+            if ($municipalities) {
+                $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                    return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                }, $municipalities);
+                $conditions[] = 's.district IN (' . implode(', ', $escapedMunicipalities) . ')';
+            } else {
+                $conditions[] = '1 = 0';
+            }
+        } elseif ($filterValue !== '' && isset($filterColumns[$filterKey])) {
+            $escapedValue = mysqli_real_escape_string($DB, $filterValue);
+            $conditions[] = $filterColumns[$filterKey] . " = '$escapedValue'";
+        }
+    }
+
+    $query = "SELECT DISTINCT t.`$filterColumn`
+              FROM teachers_profiling t
+              LEFT JOIN schools s ON s.school_id = t.school_id
+              WHERE " . implode(' AND ', $conditions) . "
+              ORDER BY t.`$filterColumn` ASC";
+    $optionQuery = mysqli_query($DB, $query);
+    if (!$optionQuery) {
+        die('Unable to load teacher filter options: ' . mysqli_error($DB));
+    }
+
+    $options = [];
+    while ($optionRow = mysqli_fetch_row($optionQuery)) {
+        $options[] = $optionRow[0];
+    }
+    return $options;
+}
+
+$teacherFilterOptions['grade_level'] = getTeacherFilterOptions($DB, 'grade_level', [
+    'district' => $selectedDistrict,
+    'school_id' => $selectedSchoolId,
+], $districtMunicipalities);
+$selectedGradeLevel = in_array($selectedGradeLevel, $teacherFilterOptions['grade_level'], true) ? $selectedGradeLevel : '';
+
+$teacherFilterOptions['position'] = getTeacherFilterOptions($DB, 'position', [
+    'district' => $selectedDistrict,
+    'school_id' => $selectedSchoolId,
+    'grade_level' => $selectedGradeLevel,
+], $districtMunicipalities);
+$selectedPosition = in_array($selectedPosition, $teacherFilterOptions['position'], true) ? $selectedPosition : '';
+
+$teacherFilterOptions['major'] = getTeacherFilterOptions($DB, 'major', [
+    'district' => $selectedDistrict,
+    'school_id' => $selectedSchoolId,
+    'grade_level' => $selectedGradeLevel,
+    'position' => $selectedPosition,
+], $districtMunicipalities);
+$selectedMajor = in_array($selectedMajor, $teacherFilterOptions['major'], true) ? $selectedMajor : '';
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -173,6 +294,50 @@ include('includes/modals.php');
     Add Teacher <i class="fas fa-plus"></i>
 </button>
 <?php } ?>
+                    <form method="get" action="manage_teacher.php" class="form-inline mb-3">
+                        <label for="teacherDistrictFilter" class="mr-2">District:</label>
+                        <select name="district" id="teacherDistrictFilter" class="form-control mr-2 mb-2" onchange="this.form.submit()">
+                            <option value="">All districts</option>
+                            <?php foreach ($districtOptions as $district) { ?>
+                                <option value="<?php echo htmlspecialchars($district, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedDistrict === $district ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($district, ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                        <label for="teacherSchoolFilter" class="mr-2">School:</label>
+                        <select name="school_id" id="teacherSchoolFilter" class="form-control mr-2 mb-2" onchange="this.form.submit()">
+                            <option value="">All schools</option>
+                            <?php foreach ($schoolOptions as $schoolId => $school) { ?>
+                                <option value="<?php echo htmlspecialchars((string)$schoolId, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedSchoolId === (string)$schoolId ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($school['school_name'] . ' - ' . $school['district'] . ' (' . $schoolId . ')', ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                        <label for="teacherGradeFilter" class="mr-2">Grade Level:</label>
+                        <select name="grade_level" id="teacherGradeFilter" class="form-control mr-2 mb-2" onchange="this.form.submit()">
+                            <option value="">All grade levels</option>
+                            <?php foreach ($teacherFilterOptions['grade_level'] as $gradeLevel) { ?>
+                                <option value="<?php echo htmlspecialchars($gradeLevel, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedGradeLevel === $gradeLevel ? 'selected' : ''; ?>><?php echo htmlspecialchars($gradeLevel, ENT_QUOTES, 'UTF-8'); ?></option>
+                            <?php } ?>
+                        </select>
+                        <label for="teacherPositionFilter" class="mr-2">Position:</label>
+                        <select name="position" id="teacherPositionFilter" class="form-control mr-2 mb-2" onchange="this.form.submit()">
+                            <option value="">All positions</option>
+                            <?php foreach ($teacherFilterOptions['position'] as $position) { ?>
+                                <option value="<?php echo htmlspecialchars($position, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedPosition === $position ? 'selected' : ''; ?>><?php echo htmlspecialchars($position, ENT_QUOTES, 'UTF-8'); ?></option>
+                            <?php } ?>
+                        </select>
+                        <label for="teacherMajorFilter" class="mr-2">Major:</label>
+                        <select name="major" id="teacherMajorFilter" class="form-control mr-2 mb-2" onchange="this.form.submit()">
+                            <option value="">All majors</option>
+                            <?php foreach ($teacherFilterOptions['major'] as $major) { ?>
+                                <option value="<?php echo htmlspecialchars($major, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedMajor === $major ? 'selected' : ''; ?>><?php echo htmlspecialchars($major, ENT_QUOTES, 'UTF-8'); ?></option>
+                            <?php } ?>
+                        </select>
+                        <button type="submit" class="btn btn-primary mr-2 mb-2">Filter</button>
+                        <a href="manage_teacher.php" class="btn btn-secondary">Reset</a>
+                    </form>
+                    <?php if ($showTeacherList) { ?>
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
         <tr>
@@ -196,23 +361,37 @@ include('includes/modals.php');
 
         <?php
         $i = 0;
-        $teacherQuery = mysqli_query($DB, "SELECT * FROM teachers_profiling");
+        $districtCondition = '1 = 1';
+        if ($selectedDistrict !== '') {
+            $districtValues = array_map(function ($municipality) use ($DB) {
+                return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+            }, $districtMunicipalities[$selectedDistrict]);
+            $districtCondition = 's.district IN (' . implode(', ', $districtValues) . ')';
+        }
+        $teacherStatement = $DB->prepare("
+            SELECT t.*, s.district AS school_district, s.school_name
+            FROM teachers_profiling t
+            LEFT JOIN schools s ON s.school_id = t.school_id
+            WHERE $districtCondition
+              AND (? = '' OR t.school_id = ?)
+              AND (? = '' OR t.grade_level = ?)
+              AND (? = '' OR t.position = ?)
+              AND (? = '' OR t.major = ?)
+            ORDER BY t.teacher_name ASC
+        ");
+        $teacherStatement->bind_param(
+            'ssssssss',
+            $selectedSchoolId, $selectedSchoolId,
+            $selectedGradeLevel, $selectedGradeLevel,
+            $selectedPosition, $selectedPosition,
+            $selectedMajor, $selectedMajor
+        );
+        $teacherStatement->execute();
+        $teacherQuery = $teacherStatement->get_result();
         if (mysqli_num_rows($teacherQuery) > 0) {
             while ($row = mysqli_fetch_assoc($teacherQuery)) {
                 $i++;
                 $user_ID = $row['id']; // Changed to match teacher ID column
-                
-                $school_iddss = $row['school_id'];
-                $district = '';
-                $schoolname = '';
-                
-                $teacherQueryb1 = mysqli_query($DB, "SELECT * FROM schools WHERE school_id = '$school_iddss'");
-                if (mysqli_num_rows($teacherQueryb1) > 0) {
-                    while ($rowb1 = mysqli_fetch_assoc($teacherQueryb1)) {
-                        $district = $rowb1['district'];
-                        $schoolname = $rowb1['school_name'];
-                    }
-                }
                 
         ?>
                             <tr>
@@ -225,8 +404,8 @@ include('includes/modals.php');
             <td><?php echo $row['major']; ?></td>
             <td><?php echo $row['education']; ?></td>
             <td><?php echo $row['no_of_trainings']; ?></td>
-            <td><?php echo $district; ?></td>
-            <td><?php echo $schoolname; ?></td>
+            <td><?php echo htmlspecialchars($row['school_district'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($row['school_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
             <?php if($_SESSION['is_superadmin'] == '1'){ ?>
                                 <td align="center">
                                     <div class="btn-group">
@@ -283,11 +462,11 @@ include('includes/modals.php');
     <select name="grade_level" class="form-control">
         <?php 
         for ($i = 1; $i <= 12; $i++) {
-            $selected = ($row['grade_level'] == "Grade $i") ? 'selected' : '';
+            $selected = (($row['grade_level'] ?? '') == "Grade $i") ? 'selected' : '';
             echo "<option value='Grade $i' $selected>Grade $i</option>";
         }
         ?>
-        <option value="Kinder" <?php if($row['grade_level'] == 'Kinder'){ echo 'selected'; } ?>>Kinder</option>
+        <option value="Kinder" <?php if(($row['grade_level'] ?? '') == 'Kinder'){ echo 'selected'; } ?>>Kinder</option>
     </select>
 </div>
 
@@ -388,6 +567,9 @@ include('includes/modals.php');
                             ?>
                         </tbody>
                     </table>
+                    <?php } else { ?>
+                        <div class="alert alert-info mb-0">Choose one or more filters above to load the teacher list.</div>
+                    <?php } ?>
                 </div>
                 <!-- /.card-body -->
             </div>
@@ -445,11 +627,11 @@ include('includes/modals.php');
     <select name="grade_level" class="form-control">
         <?php 
         for ($i = 1; $i <= 12; $i++) {
-            $selected = ($row['grade_level'] == "Grade $i") ? 'selected' : '';
+            $selected = (($row['grade_level'] ?? '') == "Grade $i") ? 'selected' : '';
             echo "<option value='Grade $i' $selected>Grade $i</option>";
         }
         ?>
-        <option value="Kinder">Kinder</option>
+        <option value="Kinder" <?php if(($row['grade_level'] ?? '') == 'Kinder'){ echo 'selected'; } ?>>Kinder</option>
     </select>
 </div>
 
@@ -464,8 +646,7 @@ include('includes/modals.php');
         <option value="Master" >Master</option>
         <option value="Doctor" >Doctor</option>
     </select>
-</div>
-
+</div> 
                     <div class="form-group col-md-6">
                         <label for="no_of_trainings">Number of Trainings</label>
                         <input type="number" name="no_of_trainings" class="form-control" required>
@@ -493,8 +674,6 @@ include('includes/modals.php');
 
     <!-- /.content -->
 </div>
-
-
 
 <?php
 include('includes/footer.php');

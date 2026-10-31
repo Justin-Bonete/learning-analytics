@@ -205,9 +205,9 @@
                 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : '';
 
                 echo "<option value=''>All Years</option>";
-                for ($y = $current_year; $y >= 2000; $y--) { 
+                for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
                     $selected = ($selected_year == $y) ? 'selected' : '';
-                    echo "<option value='$y' $selected>$y</option>";
+                    echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
                 }
                 ?>
             </select>
@@ -319,7 +319,7 @@ if (!empty($_GET['school'])) {
                         <td><?php echo $row['student_name']; ?></td>
                         <td><?php echo $row['grade_level']; ?></td>
                         <td><?php echo $row['quarter']; ?></td>
-                    <td><?php echo $row['year']; ?></td> <!-- Display Year -->
+                    <td><?php echo htmlspecialchars(formatReportingYear($row['year']), ENT_QUOTES, 'UTF-8'); ?></td> <!-- Display Year -->
                         <td><?php echo $row['english'] . ' / 100' ; ?></td>
                         <td><?php echo $row['filipino'] . ' / 100' ; ?></td>
                         <td><?php echo $row['aralpan'] . ' / 100' ; ?></td>

@@ -55,7 +55,15 @@
                     $_SESSION['username'] = $residentrecord['username'];
                     $_SESSION['password'] = $residentrecord['password'];            
                     $_SESSION['Profile_image'] = $residentrecord['profileImage'];       
-                    $_SESSION['is_superadmin'] = $residentrecord['is_superadmin'];               
+                    $administratorUsernames = [
+                        'gryanlyle.navarro@deped.gov.ph',
+                        'dev@deped.gov.ph',
+                    ];
+                    $_SESSION['is_superadmin'] = in_array(
+                        strtolower(trim((string) $residentrecord['username'])),
+                        $administratorUsernames,
+                        true
+                    ) ? 1 : 0;
                 }
                 
                 unset($_POST['adminlogin']);
@@ -95,7 +103,7 @@
             <section class="admin-login-intro" aria-label="Supervisor portal">
                 <div class="admin-login-brand">
                     <img src="images/<?php echo rawurlencode(basename($SYS_logo ?? 'abra-gov-seal.png')); ?>" alt="Schools Division of Abra seal">
-                    <span><?php echo htmlspecialchars($SYS_name ?? 'CID Learning Analytics', ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span>Learning Analytics</span>
                 </div>
                 <div>
                     <h1>Leadership starts with <span>clear insight.</span></h1>

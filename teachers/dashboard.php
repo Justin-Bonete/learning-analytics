@@ -158,9 +158,9 @@
                         <label for="year" class="filter-label">Reporting year</label>
                         <select class="form-control" name="year" id="year">
                         <?php
-                           for ($y = $current_year; $y >= 2000; $y--) {
+                           for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
                                $selected = ($selected_year == $y) ? 'selected' : '';
-                               echo "<option value='$y' $selected>$y</option>";
+                               echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
                            }
                            ?>
                         </select>

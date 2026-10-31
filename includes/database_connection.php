@@ -64,3 +64,5 @@ try {
 // Keep old variable names working for existing code
 $DB = $conn;
 $SERVER = $host; $USERNAME = $username; $PASSWORD = $password; $DB_NAME = $database;
+
+require_once __DIR__ . '/reporting_year.php';

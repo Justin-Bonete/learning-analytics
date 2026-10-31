@@ -199,9 +199,9 @@
         
         <!-- Title Column - Always 8 columns -->
         <div class="col-8 col-md-8 col-lg-8 title-col">
-            <h4 class="header-title text-dark text-center">
-                <b>COMPREHENSIVE LEARNING ANALYTICS PLATFORM IN THE SCHOOLS DIVISION OF ABRA</b>
-            </h4>
+            <h2 class="header-title text-dark text-center">
+                <b>        COMPREHENSIVE LEARNING ANALYTICS PLATFORM IN THE SCHOOLS DIVISION OF ABRA</b>
+            </h2>
         </div>
         
         <!-- User Section - Always 2 columns -->
@@ -273,7 +273,7 @@
                                 </div>
                             <?php endif; ?>
                         </div>
-                    </div>
+                    </div> 
 
                     <!-- User Profile -->
                     <div class="dropdown">

@@ -113,13 +113,15 @@ body.about-page {
 }
 
 .about-hero {
-    background:
-        radial-gradient(ellipse at 82% 43%, rgba(65, 110, 135, 0.28), transparent 35%),
-        radial-gradient(ellipse at 6% 4%, rgba(79, 154, 72, 0.1), transparent 30%),
-        linear-gradient(125deg, #122538 0%, #18354b 62%, #1e4557 100%);
+    animation: about-hero-image-arrive 1.2s ease-out both;
+    background-image:
+        linear-gradient(115deg, rgba(9, 20, 39, 0.88), rgba(12, 38, 58, 0.67)),
+        url("../images/argonresidences_bg.jpg");
+    background-position: center, 52% 48%;
+    background-size: auto, cover;
     color: #fff;
     isolation: isolate;
-    min-height: 660px;
+    min-height: 700px;
     overflow: hidden;
     padding: 42px clamp(1.25rem, 6.5vw, 7rem);
     position: relative;
@@ -152,19 +154,20 @@ body.about-page {
 .about-hero-inner {
     align-items: center;
     display: grid;
-    gap: clamp(2rem, 6vw, 6rem);
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
     margin: 0 auto;
-    max-width: 1320px;
-    min-height: 470px;
+    max-width: 1080px;
+    min-height: 560px;
     position: relative;
     z-index: 1;
 }
 
 .about-hero-copy {
     animation: about-rise-in 700ms ease both;
-    max-width: 590px;
-    padding: 0 0 1.5rem;
+    max-width: 100%;
+    padding: 0;
+    text-align: center;
 }
 
 .about-eyebrow,
@@ -205,7 +208,16 @@ body.about-page {
     font-size: clamp(1rem, 1.25vw, 1.12rem);
     line-height: 1.8;
     margin: 0;
-    max-width: 540px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.about-hero-copy ul {
+    margin: 1rem auto;
+    max-width: 900px;
+    padding-left: 1.25rem;
+    text-align: left;
 }
 
 .about-hero-actions {
@@ -213,6 +225,7 @@ body.about-page {
     display: flex;
     flex-wrap: wrap;
     gap: 1.25rem;
+    justify-content: center;
     margin-top: 2rem;
 }
 
@@ -274,6 +287,7 @@ body.about-page {
     align-items: center;
     display: flex;
     gap: 0.9rem;
+    justify-content: center;
     margin-top: 2.3rem;
 }
 
@@ -1135,6 +1149,15 @@ body.about-page {
     }
 }
 
+@keyframes about-hero-image-arrive {
+    from {
+        background-position: center, 52% 48%;
+    }
+    to {
+        background-position: center, center;
+    }
+}
+
 @keyframes about-model-float {
     0%, 100% {
         transform: translateY(0) rotateY(-14deg) rotateX(5deg);
@@ -1154,21 +1177,7 @@ body.about-page {
     }
 
     .about-hero-inner {
-        gap: 1.5rem;
-        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-        min-height: 440px;
-    }
-
-    .about-hero-visual {
-        min-height: 380px;
-    }
-
-    .about-dashboard-model {
-        width: min(100%, 440px);
-    }
-
-    .about-float-card-top {
-        right: -5%;
+        min-height: 520px;
     }
 }
 

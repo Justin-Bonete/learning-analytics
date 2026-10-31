@@ -159,13 +159,6 @@ include('includes/modals.php');
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
-            <?php
-               // Fetch all schools for the dropdown
-               $schoolsQuery = mysqli_query($DB, "SELECT school_id, school_name FROM schools ORDER BY school_name ASC");
-               
-               // Get selected school from the dropdown
-               $selectedSchool = isset($_GET['school_id']) ? intval($_GET['school_id']) : '';
-               ?>
 <form method="GET">
     <div class="row">
         <!-- School Filter -->
@@ -239,7 +232,6 @@ include('includes/modals.php');
                         </thead>
                         <tbody>
 <?php
-$ig1 = 0;
 
 $whereConditions = [];
 
@@ -260,13 +252,30 @@ $whereConditions[] = "(students.grade_level != 'Grade 11' AND students.grade_lev
 
 $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
 
-// ✅ Fetch students with school and district filtering
+$pageSize = 50;
+$requestedPage = isset($_GET['page']) && ctype_digit((string)$_GET['page'])
+    ? max(1, (int)$_GET['page'])
+    : 1;
+$countQuery = mysqli_query($DB, "
+    SELECT COUNT(*) AS total
+    FROM students
+    JOIN schools ON students.school_id = schools.school_id
+    $whereClause
+");
+$countRow = mysqli_fetch_assoc($countQuery);
+$totalStudents = (int)($countRow['total'] ?? 0);
+$totalPages = max(1, (int)ceil($totalStudents / $pageSize));
+$currentPage = min($requestedPage, $totalPages);
+$offset = ($currentPage - 1) * $pageSize;
+$ig1 = $offset;
+
 $studentQuery = mysqli_query($DB, "
     SELECT students.*, schools.school_name, schools.district 
     FROM students 
     JOIN schools ON students.school_id = schools.school_id 
     $whereClause 
     ORDER BY students.school_id DESC
+    LIMIT $pageSize OFFSET $offset
 ");
 
 if (mysqli_num_rows($studentQuery) > 0) {
@@ -489,6 +498,38 @@ if (mysqli_num_rows($studentQuery) > 0) {
                             ?>
                         </tbody>
                     </table>
+                    <?php if ($totalStudents > 0) { ?>
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mt-3">
+                            <small class="text-muted mb-2 mb-md-0">
+                                Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $pageSize, $totalStudents); ?> of <?php echo $totalStudents; ?> learners
+                            </small>
+                            <?php if ($totalPages > 1) { ?>
+                                <nav aria-label="Learner list pages">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <?php
+                                        $paginationParams = $_GET;
+                                        $firstPage = max(1, $currentPage - 2);
+                                        $lastPage = min($totalPages, $currentPage + 2);
+                                        ?>
+                                        <li class="page-item <?php echo $currentPage <= 1 ? 'disabled' : ''; ?>">
+                                            <?php $paginationParams['page'] = max(1, $currentPage - 1); ?>
+                                            <a class="page-link" href="?<?php echo htmlspecialchars(http_build_query($paginationParams), ENT_QUOTES, 'UTF-8'); ?>" aria-label="Previous">&laquo;</a>
+                                        </li>
+                                        <?php for ($pageNumber = $firstPage; $pageNumber <= $lastPage; $pageNumber++) { ?>
+                                            <?php $paginationParams['page'] = $pageNumber; ?>
+                                            <li class="page-item <?php echo $pageNumber === $currentPage ? 'active' : ''; ?>">
+                                                <a class="page-link" href="?<?php echo htmlspecialchars(http_build_query($paginationParams), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pageNumber; ?></a>
+                                            </li>
+                                        <?php } ?>
+                                        <li class="page-item <?php echo $currentPage >= $totalPages ? 'disabled' : ''; ?>">
+                                            <?php $paginationParams['page'] = min($totalPages, $currentPage + 1); ?>
+                                            <a class="page-link" href="?<?php echo htmlspecialchars(http_build_query($paginationParams), ENT_QUOTES, 'UTF-8'); ?>" aria-label="Next">&raquo;</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>

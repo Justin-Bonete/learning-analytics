@@ -1,13 +1,80 @@
 <?php
-    include('includes/header.php');
-    include('includes/topbar.php');
-    include('includes/sidebar.php');
-    include('includes/modals.php');
+require_once __DIR__ . '/debug_header.php';
 
+include('includes/header.php');
+include('includes/topbar.php');
+include('includes/sidebar.php');
+include('includes/modals.php');
+
+$districtMunicipalities = [
+    'District 1' => ['Bangued'],
+    'District 2' => ['Bucay', 'Manabo'],
+    'District 3' => ['Dolores', 'Tayum'],
+    'District 4' => ['Lagangilang', 'Lacub', 'Baay-Licuan', 'Malibcong'],
+    'District 5' => ['Lapaz', 'Lagayan', 'Danglas'],
+    'District 6' => ['Luba', 'Tubo'],
+    'District 7' => ['Pidigan', 'San Quintin', 'Peñarrubia'],
+    'District 8' => ['Pilar', 'San Isidro', 'Villiaviciosa'],
+    'District 9' => ['Sallapadan', 'Boliney', 'Bucloc', 'Daguioman'],
+    'District 10' => ['San Juan', 'Tineg'],
+];
+
+
+    $municipalityAliases = [
+        'Lapaz' => ['Lapaz', 'La Paz'],
+        'Baay-Licuan' => ['Baay-Licuan', 'Licuan-Baay'],
+        'Villiaviciosa' => ['Villiaviciosa', 'Villaviciosa'],
+    ];
+    $selectedDistrict = isset($_GET['district']) && isset($districtMunicipalities[$_GET['district']])
+        ? $_GET['district']
+        : '';
+    $selectedMunicipality = isset($_GET['municipality']) ? $_GET['municipality'] : '';
+    $selectedSchoolId = isset($_GET['school_id']) ? $_GET['school_id'] : '';
+
+    $districtMunicipalityOptions = [];
+    if ($selectedDistrict !== '') {
+        $districtMunicipalityOptions = $districtMunicipalities[$selectedDistrict];
+    } else {
+        foreach ($districtMunicipalities as $municipalities) {
+            $districtMunicipalityOptions = array_merge($districtMunicipalityOptions, $municipalities);
+        }
+    }
+    if (!in_array($selectedMunicipality, $districtMunicipalityOptions, true)) {
+        $selectedMunicipality = '';
+    }
+
+    $filterMunicipalities = [];
+    if ($selectedMunicipality !== '') {
+        $filterMunicipalities = $municipalityAliases[$selectedMunicipality] ?? [$selectedMunicipality];
+    } elseif ($selectedDistrict !== '') {
+        foreach ($districtMunicipalityOptions as $municipality) {
+            $filterMunicipalities = array_merge(
+                $filterMunicipalities,
+                $municipalityAliases[$municipality] ?? [$municipality]
+            );
+        }
+    }
+
+    $schoolFilterOptions = [];
+    $schoolFilterQuery = mysqli_query($DB, "SELECT school_id, school_name, district FROM schools WHERE school_id IS NOT NULL AND school_id <> '' ORDER BY school_name ASC");
+    while ($schoolRow = mysqli_fetch_assoc($schoolFilterQuery)) {
+        if ($filterMunicipalities && !in_array(trim((string) $schoolRow['district']), $filterMunicipalities, true)) {
+            continue;
+        }
+        $schoolFilterOptions[(string) $schoolRow['school_id']] = $schoolRow['school_name'];
+    }
+    if (!isset($schoolFilterOptions[$selectedSchoolId])) {
+        $selectedSchoolId = '';
+    }
     
     if(isset($_GET['filtration'])){
         
-                $district = isset($_GET['district']) ? mysqli_real_escape_string($DB, $_GET['district']) : null;
+                $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                    return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                }, $filterMunicipalities);
+                $escapedSchoolId = $selectedSchoolId !== ''
+                    ? "'" . mysqli_real_escape_string($DB, $selectedSchoolId) . "'"
+                    : '';
                 $grade_level = isset($_GET['grade_level']) ? mysqli_real_escape_string($DB, $_GET['grade_level']) : null;
                 $year_level = isset($_GET['year_level']) ? mysqli_real_escape_string($DB, $_GET['year_level']) : null;
             
@@ -16,10 +83,15 @@
                 $schoolConditions = [];
             
                 // Add conditions dynamically
-                if (!empty($district) && $district != '') {
-                    $teacherConditions[] = "b.district = '$district'";
-                    $learnerConditions[] = "b.district = '$district'";
-                    $schoolConditions[] = "district = '$district'";
+                if ($escapedMunicipalities) {
+                    $teacherConditions[] = 'b.district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                    $learnerConditions[] = 'b.district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                    $schoolConditions[] = 'district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                }
+                if ($escapedSchoolId !== '') {
+                    $teacherConditions[] = "b.school_id = $escapedSchoolId";
+                    $learnerConditions[] = "b.school_id = $escapedSchoolId";
+                    $schoolConditions[] = "school_id = $escapedSchoolId";
                 }
                 if (!empty($grade_level) && $grade_level != '') {
                     $learnerConditions[] = "a.grade_level LIKE '%$grade_level%'";
@@ -350,7 +422,7 @@
             <!-- Small boxes (Stat box) -->
 <?php
 $selectedDistrict = isset($_GET['district']) && $_GET['district'] !== '' ? $_GET['district'] : 'All Districts';
-$selectedYear = isset($_GET['year']) && $_GET['year'] !== '' ? $_GET['year'] : 'All Years';
+$selectedYear = isset($_GET['year']) && $_GET['year'] !== '' ? formatReportingYear($_GET['year']) : 'All Years';
 $selectedGrade = isset($_GET['grade_level']) && $_GET['grade_level'] !== '' ? 'Grade ' . $_GET['grade_level'] : 'All Grades';
 
 if (!empty($_GET['district']) || !empty($_GET['year']) || !empty($_GET['grade_level'])) {
@@ -378,53 +450,70 @@ if (!empty($_GET['district']) || !empty($_GET['year']) || !empty($_GET['grade_le
 
 
             
-               <form method="GET" action="" class="dashboard-filters">
-                  <div class="row">
-                    <div class="col-md-2">
-                        <label for="district">Select District:</label>
-                        <select class="form-control" name="district">
-                            <option value="">All Districts</option>
+                    <form method="GET" action="" class="dashboard-filters">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label for="year">School Year:</label>
+                                <select class="form-control" name="year" id="year">
                                 <?php
-                                $districts = ["Bangued", "Bucay", "La Paz", "Lagangilang", "Luba", "Dolores", "Pidigan", "San Juan", "Pilar", "Sallapadan"];
-                                foreach ($districts as $district) {
-                                    $selected = (isset($_GET['district']) && $_GET['district'] == $district) ? 'selected' : '';
-                                    echo "<option value='$district' $selected>$district</option>";
-                                }
-                                ?>
-                        </select>
-                    </div>
-                     <div class="col-md-2">
-                        <label for="year">Select Year:</label>
-                        <select class="form-control" name="year">
-                        <?php
-                           $current_year = date("Y");
-                           $selected_year = isset($_GET['year']) ? intval($_GET['year']) : $current_year;
-                           
-                           for ($y = $current_year; $y >= 2000; $y--) { // Adjust 2000 to your earliest data year
-                               $selected = ($selected_year == $y) ? 'selected' : '';
-                               echo "<option value='$y' $selected>$y</option>";
-                           }
-                           ?>
-                        </select>
-                     </div>
-                     <div class="col-md-2">
-                        <label for="grade_level">Select Grade Level:</label>
-                        <select class="form-control" name="grade_level">
-                           <option value="">All Grades</option>
-                           <?php
-                              for ($i = 1; $i <= 12; $i++) {
-                                  $selected = (isset($_GET['grade_level']) && $_GET['grade_level'] == $i) ? 'selected' : '';
-                                  echo "<option value='$i' $selected>Grade $i</option>";
-                              }
-                              ?>
-                        </select>
-                     </div>
-                     <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" id="filtration" name="filtration" class="btn btn-primary">Filter</button>
-                        <a href="dashboard.php" class="btn btn-secondary ml-2">Reset</a>
-                     </div>
-                  </div>
-               </form>
+                                    $current_year = date("Y");
+                                    $selected_year = isset($_GET['year']) ? intval($_GET['year']) : $current_year;
+
+                                    for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
+                                         $selected = ($selected_year == $y) ? 'selected' : '';
+                                         echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="district">District:</label>
+                                <select class="form-control" name="district" id="district">
+                                    <option value="">All Districts</option>
+                                    <?php foreach (array_keys($districtMunicipalities) as $districtOption) {
+                                         $selected = ($selectedDistrict === $districtOption) ? 'selected' : '';
+                                         echo "<option value='" . htmlspecialchars($districtOption, ENT_QUOTES, 'UTF-8') . "' $selected>" . htmlspecialchars($districtOption, ENT_QUOTES, 'UTF-8') . "</option>";
+                                    } ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="municipality">Municipality:</label>
+                                <select class="form-control" name="municipality" id="municipality">
+                                    <option value="">All Municipalities</option>
+                                    <?php foreach ($districtMunicipalityOptions as $municipalityOption) {
+                                         $selected = ($selectedMunicipality === $municipalityOption) ? 'selected' : '';
+                                         echo "<option value='" . htmlspecialchars($municipalityOption, ENT_QUOTES, 'UTF-8') . "' $selected>" . htmlspecialchars($municipalityOption, ENT_QUOTES, 'UTF-8') . "</option>";
+                                    } ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="school_id">School:</label>
+                                <select class="form-control" name="school_id" id="school_id">
+                                    <option value="">All Schools</option>
+                                    <?php foreach ($schoolFilterOptions as $schoolIdOption => $schoolNameOption) {
+                                         $selected = ($selectedSchoolId === (string) $schoolIdOption) ? 'selected' : '';
+                                         echo "<option value='" . htmlspecialchars((string) $schoolIdOption, ENT_QUOTES, 'UTF-8') . "' $selected>" . htmlspecialchars($schoolNameOption, ENT_QUOTES, 'UTF-8') . "</option>";
+                                    } ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="grade_level">Grade Level:</label>
+                                <select class="form-control" name="grade_level" id="grade_level">
+                                    <option value="">All Grades</option>
+                                    <?php
+                                        for ($i = 1; $i <= 12; $i++) {
+                                             $selected = (isset($_GET['grade_level']) && $_GET['grade_level'] == $i) ? 'selected' : '';
+                                             echo "<option value='$i' $selected>Grade $i</option>";
+                                        }
+                                        ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" id="filtration" name="filtration" class="btn btn-primary">Filter</button>
+                                <a href="dashboard.php" class="btn btn-secondary ml-2">Reset</a>
+                            </div>
+                        </div>
+                    </form>
 <hr>
             <div class="row">
                 <div class="col-lg-4 col-6">
@@ -605,9 +694,15 @@ $selected_grade = isset($_GET['grade_level']) && $_GET['grade_level'] !== "" ? "
                                             AND YEAR(l.created_at) = $year_filter";
 
                                     // Apply Filters
-                                    if (!empty($_GET['district'])) {
-                                        $district = mysqli_real_escape_string($DB, $_GET['district']);
-                                        $sql .= " AND s.district = '$district'";
+                                    if ($filterMunicipalities) {
+                                        $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                                            return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                                        }, $filterMunicipalities);
+                                        $sql .= ' AND s.district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                                    }
+                                    if ($selectedSchoolId !== '') {
+                                        $escapedSchoolId = mysqli_real_escape_string($DB, $selectedSchoolId);
+                                        $sql .= " AND s.school_id = '$escapedSchoolId'";
                                     }
                                     if ($grade_level_filter) {
                                         $sql .= " AND l.grade_level = $grade_level_filter";
@@ -702,9 +797,15 @@ $selected_grade = isset($_GET['grade_level']) && $_GET['grade_level'] !== "" ? "
                 }
 
 
-                    if (!empty($_GET['district'])) {
-                        $district = mysqli_real_escape_string($DB, $_GET['district']);
-                        $sql .= " AND district = '$district'";
+                    if ($filterMunicipalities) {
+                        $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                            return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                        }, $filterMunicipalities);
+                        $sql .= ' AND district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                    }
+                    if ($selectedSchoolId !== '') {
+                        $escapedSchoolId = mysqli_real_escape_string($DB, $selectedSchoolId);
+                        $sql .= " AND school_id = '$escapedSchoolId'";
                     }
                      // Group and order results
                      $sql .= " GROUP BY district, year, grade_level, quarter ORDER BY year DESC, grade_level, quarter";
@@ -837,9 +938,15 @@ $selected_grade = isset($_GET['grade_level']) && $_GET['grade_level'] !== "" ? "
                 }
 
 
-                    if (!empty($_GET['district'])) {
-                        $district = mysqli_real_escape_string($DB, $_GET['district']);
-                        $sqlgb .= " AND district = '$district'";
+                    if ($filterMunicipalities) {
+                        $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                            return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                        }, $filterMunicipalities);
+                        $sqlgb .= ' AND district IN (' . implode(', ', $escapedMunicipalities) . ')';
+                    }
+                    if ($selectedSchoolId !== '') {
+                        $escapedSchoolId = mysqli_real_escape_string($DB, $selectedSchoolId);
+                        $sqlgb .= " AND school_id = '$escapedSchoolId'";
                     }
                      // Group and order results
                      $sqlgb .= " GROUP BY district, year, grade_level, quarter ORDER BY year DESC, grade_level, quarter";
@@ -979,9 +1086,16 @@ $selected_grade = isset($_GET['grade_level']) && $_GET['grade_level'] !== "" ? "
                 FROM learners_grade_shs
                 WHERE YEAR(created_at) = $year_filter";
             
-            // Apply district filter if selected
-            if (!empty($district_filter)) {
-                $sqlgb23 .= " AND district = '" . mysqli_real_escape_string($DB, $district_filter) . "'";
+            // Apply district and municipality filters if selected
+            if ($filterMunicipalities) {
+                $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                    return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                }, $filterMunicipalities);
+                $sqlgb23 .= ' AND district IN (' . implode(', ', $escapedMunicipalities) . ')';
+            }
+            if ($selectedSchoolId !== '') {
+                $escapedSchoolId = mysqli_real_escape_string($DB, $selectedSchoolId);
+                $sqlgb23 .= " AND school_id = '$escapedSchoolId'";
             }
             
             // Filter only Grade 12

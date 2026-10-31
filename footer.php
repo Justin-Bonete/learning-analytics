@@ -1,10 +1,9 @@
 <footer class="app-site-footer">
     <div class="app-site-footer-inner">
-        <a class="app-site-footer-brand" href="about.php">
+        <a class="app-site-footer-brand" href="home.php">
             <img src="images/abra-gov-seal.png" alt="" aria-hidden="true">
             <span>
-                <strong>Curriculum Implementation Division</strong>
-                <small>Schools Division of Abra</small>
+                <strong>Schools Division of Abra</strong>
             </span>
         </a>
         <div class="app-site-footer-meta">
