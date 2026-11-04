@@ -132,6 +132,66 @@ if(isset($_POST['resetPassword'])) {
    include('includes/topbar.php');
    include('includes/sidebar.php');
    include('includes/modals.php');
+   
+   $schoolDistrictMunicipalities = [
+       'District 1' => ['Bangued'],
+       'District 2' => ['Bucay', 'Manabo'],
+       'District 3' => ['Dolores', 'Tayum'],
+       'District 4' => ['Lagangilang', 'Lacub', 'Baay-Licuan', 'Malibcong'],
+       'District 5' => ['La Paz', 'Lagayan', 'Danglas'],
+       'District 6' => ['Luba', 'Tubo'],
+       'District 7' => ['Pidigan', 'San Quintin', 'Peñarrubia'],
+       'District 8' => ['Pilar', 'San Isidro', 'Villaviciosa'],
+       'District 9' => ['Sallapadan', 'Boliney', 'Bucloc', 'Daguioman'],
+       'District 10' => ['San Juan', 'Tineg'],
+   ];
+   $schoolMunicipalityAliases = [
+       'La Paz' => ['La Paz', 'Lapaz'],
+       'Baay-Licuan' => ['Baay-Licuan', 'Licuan-Baay'],
+       'Villaviciosa' => ['Villaviciosa', 'Villiaviciosa'],
+   ];
+   $selectedSchoolDistrict = isset($_GET['district']) && is_string($_GET['district']) && isset($schoolDistrictMunicipalities[$_GET['district']])
+       ? $_GET['district']
+       : '';
+   $schoolMunicipalityOptions = [];
+   foreach ($schoolDistrictMunicipalities as $municipalities) {
+       $schoolMunicipalityOptions = array_merge($schoolMunicipalityOptions, $municipalities);
+   }
+   if ($selectedSchoolDistrict !== '') {
+       $schoolMunicipalityOptions = $schoolDistrictMunicipalities[$selectedSchoolDistrict];
+   }
+   $selectedSchoolMunicipality = isset($_GET['municipality']) && is_string($_GET['municipality'])
+       ? $_GET['municipality']
+       : '';
+   if (!in_array($selectedSchoolMunicipality, $schoolMunicipalityOptions, true)) {
+       $selectedSchoolMunicipality = '';
+   }
+   $selectedSchoolFilterId = isset($_GET['school_id']) && is_string($_GET['school_id'])
+       ? $_GET['school_id']
+       : '';
+   $schoolMunicipalityFilterValues = [];
+   if ($selectedSchoolMunicipality !== '') {
+       $schoolMunicipalityFilterValues = $schoolMunicipalityAliases[$selectedSchoolMunicipality]
+           ?? [$selectedSchoolMunicipality];
+   } elseif ($selectedSchoolDistrict !== '') {
+       foreach ($schoolDistrictMunicipalities[$selectedSchoolDistrict] as $municipality) {
+           $schoolMunicipalityFilterValues = array_merge(
+               $schoolMunicipalityFilterValues,
+               $schoolMunicipalityAliases[$municipality] ?? [$municipality]
+           );
+       }
+   }
+   $schoolFilterOptions = [];
+   $allSchoolOptionsQuery = mysqli_query($DB, "SELECT school_id, school_name, district FROM schools WHERE school_id IS NOT NULL AND school_id <> '' ORDER BY school_name ASC");
+   while ($schoolOption = mysqli_fetch_assoc($allSchoolOptionsQuery)) {
+       if ($schoolMunicipalityFilterValues && !in_array(trim((string)$schoolOption['district']), $schoolMunicipalityFilterValues, true)) {
+           continue;
+       }
+       $schoolFilterOptions[(string)$schoolOption['school_id']] = $schoolOption;
+   }
+   if (!isset($schoolFilterOptions[$selectedSchoolFilterId])) {
+       $selectedSchoolFilterId = '';
+   }
    ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper accent-blue">
@@ -213,22 +273,44 @@ if (isset($_POST["submitgb"])) {
          <div class="card">
             <div class="card-body">
                <div class="row">
-                  <div class="form-group col-md-3">
-                     <form method="POST">
-                         <label for="district">Filter by District:</label>
-                         <select class="form-control" name="district" onchange="this.form.submit()">
+                  <form method="GET" id="schoolFilters" class="row col-md-9">
+                  <div class="form-group col-md-4">
+                         <label for="filter_district">Filter by District:</label>
+                         <select class="form-control" name="district" id="filter_district">
                              <option value="">All Districts</option>
                              <?php
-                             $districts = ["Bangued", "Bucay", "La Paz", "Lagangilang", "Luba", "Dolores", "Pidigan", "San Juan", "Pilar", "Sallapadan"];
-                             foreach ($districts as $district) {
-                                 $selected = (isset($_POST['district']) && $_POST['district'] == $district) ? 'selected' : '';
-                                 echo "<option value='$district' $selected>$district</option>";
+                             foreach (array_keys($schoolDistrictMunicipalities) as $districtOption) {
+                                 $selected = ($selectedSchoolDistrict === $districtOption) ? 'selected' : '';
+                                 $escapedDistrict = htmlspecialchars($districtOption, ENT_QUOTES, 'UTF-8');
+                                 echo "<option value='$escapedDistrict' $selected>$escapedDistrict</option>";
                              }
                              ?>
                          </select>
-                     </form>
                   </div>
-
+                  <div class="form-group col-md-4">
+                     <label for="filter_municipality">Filter by Municipality:</label>
+                     <select class="form-control" name="municipality" id="filter_municipality">
+                         <option value="">All Municipalities</option>
+                         <?php foreach ($schoolMunicipalityOptions as $municipalityOption) {
+                             $selected = ($selectedSchoolMunicipality === $municipalityOption) ? 'selected' : '';
+                             $escapedMunicipality = htmlspecialchars($municipalityOption, ENT_QUOTES, 'UTF-8');
+                             echo "<option value='$escapedMunicipality' $selected>$escapedMunicipality</option>";
+                         } ?>
+                     </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                     <label for="filter_school_id">Filter by School:</label>
+                     <select class="form-control" name="school_id" id="filter_school_id">
+                         <option value="">All Schools</option>
+                         <?php foreach ($schoolFilterOptions as $schoolIdOption => $schoolOption) {
+                             $escapedSchoolId = htmlspecialchars($schoolIdOption, ENT_QUOTES, 'UTF-8');
+                             $schoolLabel = htmlspecialchars($schoolOption['school_name'] . ' (' . $schoolIdOption . ')', ENT_QUOTES, 'UTF-8');
+                             $selected = ($selectedSchoolFilterId === $schoolIdOption) ? 'selected' : '';
+                             echo "<option value='$escapedSchoolId' $selected>$schoolLabel</option>";
+                         } ?>
+                     </select>
+                  </div>
+                  </form>
                   <div class="form-group col-md-3">
                         <br>
             <?php if($_SESSION['is_superadmin'] == '1'){ ?>
@@ -238,6 +320,13 @@ if (isset($_POST["submitgb"])) {
                         <?php } ?>
                   </div>
             </div>
+            <script>
+               document.getElementById('schoolFilters').addEventListener('change', function (event) {
+                  if (event.target.matches('select')) {
+                     this.submit();
+                  }
+               });
+            </script>
                <table id="example2" class="table table-bordered table-striped">
                   <thead>
                      <tr>
@@ -259,15 +348,21 @@ if (isset($_POST["submitgb"])) {
                   <tbody>
                      <?php
                         $i = 0;
-                        // ✅ Apply filtering based on selected district
-                        $districtFilter = "";
-                        if (isset($_POST['district']) && $_POST['district'] !== "") {
-                            $selectedDistrict = mysqli_real_escape_string($DB, $_POST['district']);
-                            $districtFilter = " WHERE district = '$selectedDistrict'";
+                        $schoolFilterConditions = [];
+                        if ($schoolMunicipalityFilterValues) {
+                            $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+                                return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+                            }, $schoolMunicipalityFilterValues);
+                            $schoolFilterConditions[] = 'district IN (' . implode(', ', $escapedMunicipalities) . ')';
                         }
-
-                        // ✅ Fetch schools with applied district filter
-                        $schoolQuery = mysqli_query($DB, "SELECT * FROM schools $districtFilter");
+                        if ($selectedSchoolFilterId !== '') {
+                            $escapedSchoolId = mysqli_real_escape_string($DB, $selectedSchoolFilterId);
+                            $schoolFilterConditions[] = "school_id = '$escapedSchoolId'";
+                        }
+                        $schoolFilterClause = $schoolFilterConditions
+                            ? ' WHERE ' . implode(' AND ', $schoolFilterConditions)
+                            : '';
+                        $schoolQuery = mysqli_query($DB, "SELECT * FROM schools $schoolFilterClause");
 
                         if (mysqli_num_rows($schoolQuery) > 0) {
                             while ($row = mysqli_fetch_assoc($schoolQuery)) {
