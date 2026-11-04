@@ -132,6 +132,73 @@ if (isset($_POST['addStudent'])) {
 include('includes/topbar.php');
 include('includes/sidebar.php');
 include('includes/modals.php');
+
+$studentDistrictMunicipalities = [
+    'District 1' => ['Bangued'],
+    'District 2' => ['Bucay', 'Manabo'],
+    'District 3' => ['Dolores', 'Tayum'],
+    'District 4' => ['Lagangilang', 'Lacub', 'Baay-Licuan', 'Malibcong'],
+    'District 5' => ['La Paz', 'Lagayan', 'Danglas'],
+    'District 6' => ['Luba', 'Tubo'],
+    'District 7' => ['Pidigan', 'San Quintin', 'Peñarrubia'],
+    'District 8' => ['Pilar', 'San Isidro', 'Villaviciosa'],
+    'District 9' => ['Sallapadan', 'Boliney', 'Bucloc', 'Daguioman'],
+    'District 10' => ['San Juan', 'Tineg'],
+];
+$studentMunicipalityAliases = [
+    'La Paz' => ['La Paz', 'Lapaz'],
+    'Baay-Licuan' => ['Baay-Licuan', 'Licuan-Baay'],
+    'Villaviciosa' => ['Villaviciosa', 'Villiaviciosa'],
+];
+$selectedStudentDistrict = isset($_GET['district']) && is_string($_GET['district']) && isset($studentDistrictMunicipalities[$_GET['district']])
+    ? $_GET['district']
+    : '';
+$studentMunicipalityOptions = [];
+foreach ($studentDistrictMunicipalities as $municipalities) {
+    $studentMunicipalityOptions = array_merge($studentMunicipalityOptions, $municipalities);
+}
+if ($selectedStudentDistrict !== '') {
+    $studentMunicipalityOptions = $studentDistrictMunicipalities[$selectedStudentDistrict];
+}
+$selectedStudentMunicipality = isset($_GET['municipality']) && is_string($_GET['municipality'])
+    ? $_GET['municipality']
+    : '';
+if (!in_array($selectedStudentMunicipality, $studentMunicipalityOptions, true)) {
+    $selectedStudentMunicipality = '';
+}
+$studentMunicipalityFilterValues = $selectedStudentMunicipality !== ''
+    ? ($studentMunicipalityAliases[$selectedStudentMunicipality] ?? [$selectedStudentMunicipality])
+    : [];
+if ($selectedStudentMunicipality === '' && $selectedStudentDistrict !== '') {
+    foreach ($studentDistrictMunicipalities[$selectedStudentDistrict] as $municipality) {
+        $studentMunicipalityFilterValues = array_merge(
+            $studentMunicipalityFilterValues,
+            $studentMunicipalityAliases[$municipality] ?? [$municipality]
+        );
+    }
+}
+$studentSchoolOptions = [];
+$studentSchoolsQuery = mysqli_query($DB, "SELECT school_id, school_name, district FROM schools WHERE school_id IS NOT NULL AND school_id <> '' ORDER BY school_name ASC");
+while ($schoolOption = mysqli_fetch_assoc($studentSchoolsQuery)) {
+    if ($studentMunicipalityFilterValues && !in_array(trim((string)$schoolOption['district']), $studentMunicipalityFilterValues, true)) {
+        continue;
+    }
+    $studentSchoolOptions[(string)$schoolOption['school_id']] = $schoolOption;
+}
+$selectedStudentSchoolId = isset($_GET['school_id']) && is_string($_GET['school_id'])
+    ? $_GET['school_id']
+    : '';
+if (!isset($studentSchoolOptions[$selectedStudentSchoolId])) {
+    $selectedStudentSchoolId = '';
+}
+$studentGradeOptions = ['Kinder' => 'Kinder'];
+for ($gradeNumber = 1; $gradeNumber <= 10; $gradeNumber++) {
+    $studentGradeOptions[(string)$gradeNumber] = 'Grade ' . $gradeNumber;
+}
+$selectedStudentGrade = isset($_GET['grade_level']) && is_string($_GET['grade_level'])
+    && isset($studentGradeOptions[$_GET['grade_level']])
+    ? $_GET['grade_level']
+    : '';
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -159,39 +226,59 @@ include('includes/modals.php');
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
-<form method="GET">
+<form method="GET" id="studentFilters">
     <div class="row">
-        <!-- School Filter -->
-        <div class="form-group col-md-3">
-            <label for="school_id">Filter by School:</label>
-            <select name="school_id" class="form-control">
-                <option value="">All Schools</option>
-                <?php 
-                $schoolsQuery = mysqli_query($DB, "SELECT school_id, school_name, district FROM schools ORDER BY school_name ASC");
-                while ($school = mysqli_fetch_assoc($schoolsQuery)) { 
-                    $selected = (isset($_GET['school_id']) && $_GET['school_id'] == $school['school_id']) ? 'selected' : '';
-                    echo "<option value='{$school['school_id']}' $selected>{$school['school_id']} | {$school['school_name']} | {$school['district']}</option>";
-                } 
-                ?>
-            </select>
-        </div>
-
         <!-- District Filter -->
-        <div class="form-group col-md-3">
-            <label for="district">Filter by District:</label>
-            <select name="district" class="form-control">
+        <div class="form-group col-md-2">
+            <label for="student_district">Filter by District:</label>
+            <select name="district" id="student_district" class="form-control">
                 <option value="">All Districts</option>
-                <?php
-                $districts = ["Bangued", "Bucay", "La Paz", "Lagangilang", "Luba", "Dolores", "Pidigan", "San Juan", "Pilar", "Sallapadan"];
-                foreach ($districts as $district) {
-                    $selected = (isset($_GET['district']) && $_GET['district'] == $district) ? 'selected' : '';
-                    echo "<option value='$district' $selected>$district</option>";
+                <?php foreach (array_keys($studentDistrictMunicipalities) as $districtOption) {
+                    $escapedDistrict = htmlspecialchars($districtOption, ENT_QUOTES, 'UTF-8');
+                    $selected = ($selectedStudentDistrict === $districtOption) ? 'selected' : '';
+                    echo "<option value='$escapedDistrict' $selected>$escapedDistrict</option>";
                 }
                 ?>
             </select>
         </div>
 
-        <!-- Filter Button -->
+        <div class="form-group col-md-2">
+            <label for="student_municipality">Filter by Municipality:</label>
+            <select name="municipality" id="student_municipality" class="form-control">
+                <option value="">All Municipalities</option>
+                <?php foreach ($studentMunicipalityOptions as $municipalityOption) {
+                    $escapedMunicipality = htmlspecialchars($municipalityOption, ENT_QUOTES, 'UTF-8');
+                    $selected = ($selectedStudentMunicipality === $municipalityOption) ? 'selected' : '';
+                    echo "<option value='$escapedMunicipality' $selected>$escapedMunicipality</option>";
+                } ?>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="student_school_id">Filter by School:</label>
+            <select name="school_id" id="student_school_id" class="form-control">
+                <option value="">All Schools</option>
+                <?php foreach ($studentSchoolOptions as $schoolIdOption => $schoolOption) {
+                    $escapedSchoolId = htmlspecialchars($schoolIdOption, ENT_QUOTES, 'UTF-8');
+                    $schoolLabel = htmlspecialchars($schoolIdOption . ' | ' . $schoolOption['school_name'] . ' | ' . $schoolOption['district'], ENT_QUOTES, 'UTF-8');
+                    $selected = ($selectedStudentSchoolId === $schoolIdOption) ? 'selected' : '';
+                    echo "<option value='$escapedSchoolId' $selected>$schoolLabel</option>";
+                } ?>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="student_grade_level">Filter by Grade:</label>
+            <select name="grade_level" id="student_grade_level" class="form-control">
+                <option value="">All Grades</option>
+                <?php foreach ($studentGradeOptions as $gradeValue => $gradeLabel) {
+                    $escapedGrade = htmlspecialchars($gradeValue, ENT_QUOTES, 'UTF-8');
+                    $selected = ($selectedStudentGrade === $gradeValue) ? 'selected' : '';
+                    echo "<option value='$escapedGrade' $selected>$gradeLabel</option>";
+                } ?>
+            </select>
+        </div>
+
         <div class="form-group col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary" style="width:100%;">
                 <i class="fas fa-filter"></i> Filter
@@ -206,7 +293,13 @@ include('includes/modals.php');
         </div>
     </div>
 </form>
-
+<script>
+    document.getElementById('studentFilters').addEventListener('change', function (event) {
+        if (event.target.matches('select')) {
+            this.submit();
+        }
+    });
+</script>
 
 
                     <table id="example2" class="table table-bordered table-striped">
@@ -235,16 +328,29 @@ include('includes/modals.php');
 
 $whereConditions = [];
 
-// ✅ Filter by selected school
-if (!empty($_GET['school_id'])) {
-    $selectedSchool = intval($_GET['school_id']);
-    $whereConditions[] = "students.school_id = $selectedSchool";
+if ($studentMunicipalityFilterValues) {
+    $escapedMunicipalities = array_map(function ($municipality) use ($DB) {
+        return "'" . mysqli_real_escape_string($DB, $municipality) . "'";
+    }, $studentMunicipalityFilterValues);
+    $whereConditions[] = 'schools.district IN (' . implode(', ', $escapedMunicipalities) . ')';
 }
-
-// ✅ Filter by selected district
-if (!empty($_GET['district'])) {
-    $selectedDistrict = mysqli_real_escape_string($DB, $_GET['district']);
-    $whereConditions[] = "schools.district = '$selectedDistrict'";
+if ($selectedStudentSchoolId !== '') {
+    $escapedSchoolId = mysqli_real_escape_string($DB, $selectedStudentSchoolId);
+    $whereConditions[] = "students.school_id = '$escapedSchoolId'";
+}
+if ($selectedStudentGrade !== '') {
+    if ($selectedStudentGrade === 'Kinder') {
+        $studentGradePattern = '(^|[^[:alpha:]])(kinder|kindergarten)([^[:alpha:]]|$)';
+    } else {
+        $gradeNumber = (int)$selectedStudentGrade;
+        $studentGradePattern = '(^|[^0-9])([Gg]rade[[:space:]-]*)?' . $gradeNumber . '([^0-9]|$)';
+        $romanGrades = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI'];
+        if (isset($romanGrades[$gradeNumber])) {
+            $studentGradePattern .= '|(^|[^[:alpha:]])(grade[[:space:]-]*)?' . $romanGrades[$gradeNumber] . '([^[:alpha:]]|$)';
+        }
+    }
+    $escapedStudentGradePattern = mysqli_real_escape_string($DB, $studentGradePattern);
+    $whereConditions[] = "students.grade_level REGEXP '$escapedStudentGradePattern'";
 }
 
 // ✅ Exclude senior high levels
