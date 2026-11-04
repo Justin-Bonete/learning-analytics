@@ -205,9 +205,9 @@
                 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : '';
 
                 echo "<option value=''>All Years</option>";
-                for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
+                foreach (getAvailableReportingYearStarts() as $y) {
                     $selected = ($selected_year == $y) ? 'selected' : '';
-                    echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
+                    echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYearOption($y), ENT_QUOTES, 'UTF-8') . "</option>";
                 }
                 ?>
             </select>

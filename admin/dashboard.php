@@ -30,7 +30,7 @@ $selectedDistrict = isset($_GET['district']) && is_string($_GET['district']) && 
 $selectedMunicipality = isset($_GET['municipality']) && is_string($_GET['municipality']) ? $_GET['municipality'] : '';
 $selectedSchoolId = isset($_GET['school_id']) && is_string($_GET['school_id']) ? $_GET['school_id'] : '';
 $selectedYear = isset($_GET['year']) && is_string($_GET['year']) && ctype_digit($_GET['year'])
-    && (int)$_GET['year'] >= 2000 && (int)$_GET['year'] <= REPORTING_YEAR_LAST_START
+    && (int)$_GET['year'] >= REPORTING_YEAR_FIRST_START && (int)$_GET['year'] <= (int)date('Y')
     ? (string)(int)$_GET['year']
     : '';
 $selectedGrade = isset($_GET['grade_level']) && is_string($_GET['grade_level'])
@@ -485,9 +485,9 @@ if ($selectedDistrict !== '' || $selectedMunicipality !== '' || $selectedSchoolI
                                 <select class="form-control" name="year" id="year">
                                 <?php
                                     echo "<option value=\"\" " . ($selectedYear === '' ? 'selected' : '') . ">All Years</option>";
-                                    for ($y = REPORTING_YEAR_LAST_START; $y >= 2000; $y--) {
+                                    foreach (getAvailableReportingYearStarts() as $y) {
                                          $selected = ($selectedYear === (string)$y) ? 'selected' : '';
-                                         echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYear($y), ENT_QUOTES, 'UTF-8') . "</option>";
+                                         echo "<option value='$y' $selected>" . htmlspecialchars(formatReportingYearOption($y), ENT_QUOTES, 'UTF-8') . "</option>";
                                     }
                                     ?>
                                 </select>
