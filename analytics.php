@@ -753,8 +753,7 @@ if ($result) {
                                     padding: 3vh; 
                                     height: 200px !important; 
                                     width: 200px !important;
-                                    ">
-                        
+                                    ">                      
                     </canvas>
                 </div>
             </div>
